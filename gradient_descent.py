@@ -15,15 +15,6 @@ class lin_reg_BGD():
         self._compute_error(self.w)
         self._opt_weights()
 
-    def _compute_error(self, w):
-        error = 0
-        for i in range(0,self.instances):
-            Xi = self.x[i,:].reshape(-1,1)
-            Yi = self.y[i,:]
-            Xwi = np.dot((self.w).T,Xi)
-            error += (Xwi-Yi)**2
-        return np.sqrt(error / self.instances)
-
     def _opt_weights(self):
         for i in range(self.iter):
             Xw = np.dot(self.x,self.w)
@@ -48,20 +39,12 @@ class lin_reg_BGD():
         return new_x_ones.dot(opt_w)
 
     def _score(self, y_pred, y):
-        # sqrt((pred - actual)**2 / instances)
-        #return np.sqrt(((y_pred - y)**2) / self.instances)
         error = 0
         for i in range(0,self.instances):
             YPi = y_pred[i,:].reshape(-1,1) #pred
             Yi = self.y[i,:] #true
-
             error += (YPi-Yi)**2
         return (error / self.instances)
-
-
-
-
-
 
 
 ##### STANDARD-SCALER:
