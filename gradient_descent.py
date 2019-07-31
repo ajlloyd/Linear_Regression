@@ -51,8 +51,6 @@ class reg_BGD:
 
 
 
-
-
 ##### STOCHASTIC-GRADIENT-DESCENT-REGRESSION:
 # -uses random training instances (fast)
 # -higher bias (not as close to the minimum)
@@ -103,6 +101,13 @@ class reg_SGD(reg_BGD):
 
 
 
+##### RIDGE-REGRESSION:
+class ridge():
+    pass
+
+##### LASSO-REGRESSION:
+class lasso():
+    pass
 
 
 ##### STANDARD-SCALER:
