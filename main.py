@@ -5,8 +5,6 @@ from sklearn.metrics import mean_squared_error
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-
 np.random.seed(42)
 
 np.set_printoptions(suppress=True)
@@ -15,7 +13,6 @@ np.set_printoptions(suppress=True)
 xs,ys = make_regression(n_samples=1000,n_features=10,
                         n_informative=8,noise = 50, n_targets=1,random_state=12)
 x_train, x_test, y_train, y_test = train_test_split(xs,ys,test_size=0.33,random_state=12)
-
 
 
 ##### SCALER:-------------------------------------------------------------------

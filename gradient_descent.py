@@ -107,8 +107,13 @@ class reg_SGD(reg_BGD):
             error += (YPi-Yi)**2
         return (error / self.instances)
 
-##### RIDGE-REGRESSION:#########################################################
 
+
+
+##### RIDGE-REGRESSION:#########################################################
+# in theory by manipulating alpha (and therefore the l2 penalty):
+# -increases bias
+# -reduces variance
 class ridge_gd(reg_BGD):
     def __init__(self,x,y,iter=5,l_rate=0.5,alpha=0, rand=42):
         self.x = np.c_[x,np.ones((x.shape[0],1))]
@@ -162,6 +167,7 @@ class ridge_gd(reg_BGD):
             error += (YPi-Yi)**2
         return (error / self.instances)
 
+#closed form solver:
 class ridge_closed:
     def __init__(self,x,y,alpha=0):
         self.x = np.c_[x,np.ones((x.shape[0],1))]
@@ -171,9 +177,12 @@ class ridge_closed:
     def _calc(self):
         id = np.identity(self.x.shape[1])
         id[0,0] = 0
-
         w = np.dot(np.linalg.inv(self.x.T.dot(self.x) + self.alpha.dot(id)), self.x.T.dot(self.y))
         return w.ravel()
+
+
+
+
 ##### STANDARD-SCALER:##########################################################
 class scaler(BaseEstimator,TransformerMixin):
     def __init__(self):
@@ -185,6 +194,3 @@ class scaler(BaseEstimator,TransformerMixin):
         sigma = np.std(x)
         z = (x - mu)/sigma
         return z
-
-
-"""w_gradients = (2*(np.dot(Xi.T, XiwY))) + self.alpha*(np.sign(self.w))"""
