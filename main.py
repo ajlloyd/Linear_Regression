@@ -5,16 +5,20 @@ from sklearn.metrics import mean_squared_error
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+
+np.random.seed(42)
+
 np.set_printoptions(suppress=True)
 
 ##### TEST-REGRESSION-DATA:
-xs,ys = make_regression(n_samples=1000,n_features=1,
-                        n_informative=1,noise = 50, n_targets=1,random_state=12)
+xs,ys = make_regression(n_samples=1000,n_features=10,
+                        n_informative=8,noise = 50, n_targets=1,random_state=12)
 x_train, x_test, y_train, y_test = train_test_split(xs,ys,test_size=0.33,random_state=12)
 
 
 
-##### SCALER:
+##### SCALER:-------------------------------------------------------------------
 sc = gd.scaler()
 scaled = sc.fit_transform(x_train)
 scaled_t = sc.fit_transform(x_test)
@@ -31,38 +35,47 @@ print("BatchGD test:", mean_squared_error(yt_pred1,y_test))
 
 
 ##### STOCHASTIC-GD: -----------------------------------------------------------
-clf2 = gd.reg_SGD(scaled,y_train,iter=2,l_rate=0.5)
+clf2 = gd.reg_SGD(scaled,y_train,iter=10,l_rate=0.5, rand=42)
 
 # train + score:
 y_pred2 = clf2._predict(scaled)
 print("StochasticGD train:", mean_squared_error(y_pred2,y_train))
+
 # test + score:
 yt_pred2 = clf2._predict(scaled_t)
 print("StochasticGD test:", mean_squared_error(yt_pred2,y_test))
 
+print(clf2._coefficients())
 
 ##### RIDGE-GD: ----------------------------------------------------------------
-clf3 = gd.ridge(scaled,y_train,iter=5, l_rate=0.5, alpha=-0.1)
+clf3 = gd.ridge_gd(scaled,y_train,iter= 10, l_rate=0.5, alpha=0.01, rand=42)
 
 # train + score:
 y_pred3 = clf3._predict(scaled)
 print("Ridge train:", mean_squared_error(y_pred3,y_train))
+
 # test + score:
 yt_pred3 = clf3._predict(scaled_t)
 print("Ridge test:",mean_squared_error(yt_pred3,y_test))
 
+print(clf3._coefficients())
 
+##### RIDGE-CLOSED: ------------------------------------------------------------
+clf4 = gd.ridge_closed(scaled,y_train,alpha=0.1)
+print(clf4._calc())
 
 ##### PLOTS: -------------------------------------------------------------------
-plt.plot(x_train, y_train, "r.")
+def visualisation_2D():
+    plt.plot(x_train, y_train, "r.")
 
-line_x = np.linspace(-3,3,100)
-clf1_ys = clf1._predict(line_x)
-clf2_ys = clf2._predict(line_x)
-clf3_ys = clf3._predict(line_x)
+    line_x = np.linspace(-3,3,100)
+    clf1_ys = clf1._predict(line_x)
+    clf2_ys = clf2._predict(line_x)
+    clf3_ys = clf3._predict(line_x)
 
-#plt.plot(line_x,clf1_ys)
-plt.plot(line_x,clf2_ys, "b-")
-plt.plot(line_x,clf3_ys,"g-")
-
-plt.show()
+    plt.plot(line_x,clf1_ys, "o-", label="BGD")
+    plt.plot(line_x,clf2_ys, "b-", label="SGD")
+    plt.plot(line_x,clf3_ys,"g-", label="SGD penalised (l1 or l2)")
+    plt.legend()
+    plt.show()
+#visualisation_2D()

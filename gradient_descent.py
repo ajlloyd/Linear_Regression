@@ -3,7 +3,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 np.random.seed(42)
 
-##### BATCH-GRADIENT-DESCENT-REGRESSION:
+##### BATCH-GRADIENT-DESCENT-REGRESSION:########################################
 # -uses all training examples (slow)
 # -lower bias (gets closer to the minimum)
 # -cannot jump out of local minima
@@ -51,18 +51,24 @@ class reg_BGD:
 
 
 
-##### STOCHASTIC-GRADIENT-DESCENT-REGRESSION:
+##### STOCHASTIC-GRADIENT-DESCENT-REGRESSION:###################################
 # -uses random training instances (fast)
 # -higher bias (not as close to the minimum)
 # -can jump out of local minima (due to random nature)
 class reg_SGD(reg_BGD):
-    def __init__(self,x,y,iter=5,l_rate=0.5):
-
-        reg_BGD.__init__(self,x,y,iter,l_rate)
+    def __init__(self,x,y,iter=5,l_rate=0.5, rand=42):
+        self.x = np.c_[x,np.ones((x.shape[0],1))]
+        self.y = y.reshape(-1,1)
+        self.iter = iter
+        self.l_rate = l_rate
+        self.w = np.random.rand(self.x.shape[1],1)
+        self.instances = len(self.x)
+        self.rand = rand
         self._opt_weights_SGD()
 
     def _opt_weights_SGD(self):
-        for epoch in range(1,self.iter+1):
+        np.random.seed(self.rand)
+        for epoch in range(0,self.iter):
             for i in range(self.instances):
                 rand_i = np.random.randint(self.instances)
                 Xi = self.x[rand_i:rand_i+1,:]
@@ -101,12 +107,10 @@ class reg_SGD(reg_BGD):
             error += (YPi-Yi)**2
         return (error / self.instances)
 
+##### RIDGE-REGRESSION:#########################################################
 
-
-
-##### RIDGE-REGRESSION:
-class ridge(reg_BGD):
-    def __init__(self,x,y,iter=5,l_rate=0.5,alpha=0):
+class ridge_gd(reg_BGD):
+    def __init__(self,x,y,iter=5,l_rate=0.5,alpha=0, rand=42):
         self.x = np.c_[x,np.ones((x.shape[0],1))]
         self.y = y.reshape(-1,1)
         self.iter = iter
@@ -114,9 +118,11 @@ class ridge(reg_BGD):
         self.w = np.random.rand(self.x.shape[1],1)
         self.instances = len(self.x)
         self.alpha = alpha
+        self.rand = rand
         self._opt_weights_SGD()
 
     def _opt_weights_SGD(self):
+        np.random.seed(self.rand)
         for epoch in range(0,self.iter):
             for i in range(self.instances):
                 rand_i = np.random.randint(self.instances)
@@ -124,7 +130,7 @@ class ridge(reg_BGD):
                 Yi = self.y[rand_i:rand_i+1,:]
                 Xiw = np.dot(Xi,self.w)
                 XiwY = Xiw - Yi
-                w_gradients = (2*(np.dot(Xi.T, XiwY))) + self.alpha*(2*(self.w))
+                w_gradients = (2*(np.dot(Xi.T, XiwY))) + self.alpha*(self.w)
                 sched = (epoch*self.instances) + i
                 eta = self.l_rate*(sched + 50)**-1
                 self.w = self.w - (eta * w_gradients)
@@ -156,15 +162,19 @@ class ridge(reg_BGD):
             error += (YPi-Yi)**2
         return (error / self.instances)
 
+class ridge_closed:
+    def __init__(self,x,y,alpha=0):
+        self.x = np.c_[x,np.ones((x.shape[0],1))]
+        self.y = y.reshape(-1,1)
+        self.alpha = np.array(alpha)
 
+    def _calc(self):
+        id = np.identity(self.x.shape[1])
+        id[0,0] = 0
 
-
-##### LASSO-REGRESSION:
-class lasso():
-    pass
-
-
-##### STANDARD-SCALER:
+        w = np.dot(np.linalg.inv(self.x.T.dot(self.x) + self.alpha.dot(id)), self.x.T.dot(self.y))
+        return w.ravel()
+##### STANDARD-SCALER:##########################################################
 class scaler(BaseEstimator,TransformerMixin):
     def __init__(self):
         return None
@@ -175,3 +185,6 @@ class scaler(BaseEstimator,TransformerMixin):
         sigma = np.std(x)
         z = (x - mu)/sigma
         return z
+
+
+"""w_gradients = (2*(np.dot(Xi.T, XiwY))) + self.alpha*(np.sign(self.w))"""
